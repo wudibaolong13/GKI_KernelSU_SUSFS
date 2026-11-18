@@ -110,10 +110,12 @@ runs:
             [ -n "$n" ] || continue
             if [ "$o" = "Baka-SU" ] && [ "$r" = "BakaSU" ]; then
               ln=$(echo "$n" | tr '[:upper:]' '[:lower:]')
-              # keep universal (old packaging) or arm64-v8a (new), drop debug
-              if [[ "$ln" != *universal* && "$ln" != *arm64-v8a* ]]; then echo "Dropping BakaSU non-arm64 $n" >&2; rm -f "$OUT_APKS/$n"; continue; fi
+              # BakaSU: ship the universal manager only (user preference). The
+              # per-ABI builds (arm64-v8a, armeabi-v7a, riscv64, x86_64) are the
+              # same version, so any of them alongside universal is a duplicate.
+              if [[ "$ln" != *universal* ]]; then echo "Dropping BakaSU non-universal $n" >&2; rm -f "$OUT_APKS/$n"; continue; fi
               if [[ "$ln" == *debug* ]]; then echo "Dropping BakaSU debug $n" >&2; rm -f "$OUT_APKS/$n"; continue; fi
-              # now only arm64/universal release + spoofed remain
+              # exactly one BakaSU manager APK remains: the universal build
             fi
             echo "$o|$r|$n" >> "$tmp_manifest"
           done < "$MANIFEST"
