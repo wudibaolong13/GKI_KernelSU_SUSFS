@@ -1357,6 +1357,18 @@ jobs:
               cd aio-rejects
               zip -r -q -9 ../AIO-REJ.zip .
               cd ..
+              # One summary, only when rejects exist: a green run needs no note,
+              # and when something did reject this is the list to look at.
+              {
+                echo "### Rejects"
+                echo ""
+                echo "| kernel | file |"
+                echo "|---|---|"
+                find aio-rejects -type f -name '*.rej' | LC_ALL=C sort | while read -r f; do
+                  rel="${f#aio-rejects/}"
+                  echo "| ${rel%%/*} | \`${rel#*/}\` |"
+                done
+              } >> "$GITHUB_STEP_SUMMARY"
           else
               echo "No rejects found to upload."
           fi
